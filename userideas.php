@@ -10,34 +10,11 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport("userideas.init");
+jimport('userideas.init');
 
 class plgSearchUserIdeas extends JPlugin
 {
-    /**
-     * A JRegistry object holding the parameters for the plugin
-     *
-     * @var    Joomla\Registry\Registry
-     * @since  1.5
-     */
-    public $params = null;
-
     protected $autoloadLanguage = true;
-
-    /**
-     * Constructor
-     *
-     * @access      protected
-     *
-     * @param       object $subject The object to observe
-     * @param       array  $config  An array that holds the plugin configuration
-     *
-     * @since       1.5
-     */
-    public function __construct(& $subject, $config)
-    {
-        parent::__construct($subject, $config);
-    }
 
     /**
      * @return array An array of search areas
@@ -66,16 +43,14 @@ class plgSearchUserIdeas extends JPlugin
      */
     public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
     {
-        if (is_array($areas)) {
-            if (!array_intersect($areas, array_keys($this->onContentSearchAreas()))) {
-                return array();
-            }
+        if (is_array($areas) and (!array_intersect($areas, array_keys($this->onContentSearchAreas(), true)))) {
+            return array();
         }
 
         $limit = $this->params->def('search_limit', 20);
 
         $text = JString::trim($text);
-        if ($text == '') {
+        if (JString::strlen($text) === 0) {
             return array();
         }
 
@@ -119,7 +94,7 @@ class plgSearchUserIdeas extends JPlugin
                     $wheres[] = 'a.title LIKE ' . $word;
                     $wheres[] = implode(' OR ', $wheres);
                 }
-                $where = '(' . implode(($phrase == 'all' ? ') AND (' : ') OR ('), $wheres) . ')';
+                $where = '(' . implode(($phrase === 'all' ? ') AND (' : ') OR ('), $wheres) . ')';
                 break;
         }
 
@@ -152,7 +127,6 @@ class plgSearchUserIdeas extends JPlugin
         $query = $db->getQuery(true);
 
         if ($limit > 0) {
-
             $query->clear();
 
             //sqlsrv changes
@@ -181,7 +155,7 @@ class plgSearchUserIdeas extends JPlugin
             $query->innerJoin('#__categories AS c ON a.catid = c.id');
 
             // WHERE
-            $query->where("a.published = 1");
+            $query->where('a.published = 1');
             $query->where($where);
 
             // ORDER
@@ -190,11 +164,9 @@ class plgSearchUserIdeas extends JPlugin
 
             $db->setQuery($query, 0, $limit);
             $rows = $db->loadObjectList();
-
         }
 
         if ($rows) {
-
             foreach ($rows as $key => $row) {
                 $rows[$key]->href  = UserIdeasHelperRoute::getDetailsRoute($row->slug, $row->catslug);
                 $rows[$key]->title = strip_tags($rows[$key]->title);
@@ -202,7 +174,7 @@ class plgSearchUserIdeas extends JPlugin
             }
 
             foreach ($rows as $item) {
-                if (searchHelper::checkNoHTML($item, $searchText, array('title', 'text'))) {
+                if (searchHelper::checkNoHtml($item, $searchText, array('title', 'text'))) {
                     $return[] = $item;
                 }
             }
