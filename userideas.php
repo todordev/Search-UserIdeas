@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      UserIdeas
+ * @package      Userideas
  * @subpackage   Plugins
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,9 +10,10 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('userideas.init');
+jimport('Prism.init');
+jimport('Userideas.init');
 
-class plgSearchUserIdeas extends JPlugin
+class plgSearchUserideas extends JPlugin
 {
     protected $autoloadLanguage = true;
 
@@ -29,7 +30,7 @@ class plgSearchUserIdeas extends JPlugin
     }
 
     /**
-     * UserIdeas Search method.
+     * Userideas Search method.
      *
      * The sql must return the following fields that are used in a common display
      * routine: href, title, section, created, text, browsernav.
@@ -50,7 +51,7 @@ class plgSearchUserIdeas extends JPlugin
         $limit = $this->params->def('search_limit', 20);
 
         $text = JString::trim($text);
-        if (JString::strlen($text) === 0) {
+        if (!$text) {
             return array();
         }
 
@@ -78,7 +79,6 @@ class plgSearchUserIdeas extends JPlugin
         $rows       = array();
 
         switch ($phrase) {
-
             case 'exact':
                 $text     = $db->quote('%' . $db->escape($text, true) . '%', false);
                 $wheres[] = 'a.title LIKE ' . $text;
@@ -99,7 +99,6 @@ class plgSearchUserIdeas extends JPlugin
         }
 
         switch ($ordering) {
-
             case 'oldest':
                 $order = 'a.record_date ASC';
                 break;
@@ -127,9 +126,11 @@ class plgSearchUserIdeas extends JPlugin
         $query = $db->getQuery(true);
 
         if ($limit > 0) {
+            $user = JFactory::getUser();
+            $groups = implode(',', $user->getAuthorisedViewLevels());
+
             $query->clear();
 
-            //sqlsrv changes
             $case_when = ' CASE WHEN ';
             $case_when .= $query->charLength('a.alias');
             $case_when .= ' THEN ';
@@ -151,16 +152,18 @@ class plgSearchUserIdeas extends JPlugin
             $query->select('c.title as section, 2 AS browsernav, ' . $case_when . ',' . $case_when2);
 
             // FROM and JOIN
-            $query->from('#__uideas_items AS a');
-            $query->innerJoin('#__categories AS c ON a.catid = c.id');
+            $query->from($db->quoteName('#__uideas_items', 'a'));
+            $query->innerJoin($db->quoteName('#__categories', 'c') .' ON a.catid = c.id');
 
             // WHERE
-            $query->where('a.published = 1');
+            $query->where('a.published = ' . (int)Prism\Constants::PUBLISHED);
+            $query->where('a.access IN (' . $groups . ')');
+            $query->where('c.access IN (' . $groups . ')');
+
             $query->where($where);
 
             // ORDER
             $query->order($order);
-
 
             $db->setQuery($query, 0, $limit);
             $rows = $db->loadObjectList();
@@ -168,7 +171,7 @@ class plgSearchUserIdeas extends JPlugin
 
         if ($rows) {
             foreach ($rows as $key => $row) {
-                $rows[$key]->href  = UserIdeasHelperRoute::getDetailsRoute($row->slug, $row->catslug);
+                $rows[$key]->href  = UserideasHelperRoute::getDetailsRoute($row->slug, $row->catslug);
                 $rows[$key]->title = strip_tags($rows[$key]->title);
                 $rows[$key]->text  = strip_tags($rows[$key]->text);
             }
