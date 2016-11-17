@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.5" type="plugin" group="search" method="upgrade">
+<extension version="3.6" type="plugin" group="search" method="upgrade">
 	<name>PLG_SEARCH_USERIDEAS</name>
 	<author>Todor Iliev</author>
     <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>2.2</version>
-	<creationDate>25 April, 2016</creationDate>
+    <version>2.3</version>
+	<creationDate>17 November, 2016</creationDate>
 	<description><![CDATA[
     <p>Enables searching in UserIdeas component.</p>
     <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive <strong>gifts</strong>, <strong>discount codes</strong>, information about <strong>updates</strong> and information about <strong>new ITPrism extensions</strong>.</p>
@@ -21,16 +21,13 @@
     
 	<config>
 		<fields name="params">
-
 			<fieldset name="basic">
-				<field name="search_limit" type="text"
-					default="20"
-					description="JFIELD_PLG_SEARCH_SEARCHLIMIT_DESC"
-					label="JFIELD_PLG_SEARCH_SEARCHLIMIT_LABEL"
-					size="5"
-				/>
-
+				<field name="search_limit" type="text" default="20" description="JFIELD_PLG_SEARCH_SEARCHLIMIT_DESC" label="JFIELD_PLG_SEARCH_SEARCHLIMIT_LABEL" size="5"/>
 			</fieldset>
 		</fields>
 	</config>
+
+	<updateservers>
+		<server type="extension" priority="1" name="Search - UserIdeas">http://cdn.itprism.com/updates/userideas/plg_search_userideas.xml</server>
+	</updateservers>
 </extension>

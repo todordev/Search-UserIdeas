@@ -3,7 +3,7 @@
  * @package      Userideas
  * @subpackage   Plugins
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -30,7 +30,7 @@ class plgSearchUserideas extends JPlugin
     }
 
     /**
-     * Userideas Search method.
+     * UserIdeas Search method.
      *
      * The sql must return the following fields that are used in a common display
      * routine: href, title, section, created, text, browsernav.
@@ -40,7 +40,8 @@ class plgSearchUserideas extends JPlugin
      * @param string $ordering Ordering option, newest|oldest|popular|alpha|category
      * @param mixed  $areas    An array if the search it to be restricted to areas, null if search all
      *
-     * @return array()
+     * @throws \RuntimeException
+     * @return array
      */
     public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
     {
@@ -50,14 +51,12 @@ class plgSearchUserideas extends JPlugin
 
         $limit = $this->params->def('search_limit', 20);
 
-        $text = JString::trim($text);
+        $text = Joomla\String\StringHelper::trim($text);
         if (!$text) {
             return array();
         }
 
-        $return = $this->searchItems($text, $phrase, $ordering, $limit);
-
-        return $return;
+        return $this->searchItems($text, $phrase, $ordering, $limit);
     }
 
     /**
@@ -68,6 +67,8 @@ class plgSearchUserideas extends JPlugin
      * @param string  $phrase
      * @param string  $ordering
      * @param integer $limit
+     *
+     * @throws \RuntimeException
      *
      * @return array
      */
@@ -177,7 +178,7 @@ class plgSearchUserideas extends JPlugin
             }
 
             foreach ($rows as $item) {
-                if (searchHelper::checkNoHtml($item, $searchText, array('title', 'text'))) {
+                if (SearchHelper::checkNoHtml($item, $searchText, array('title', 'text'))) {
                     $return[] = $item;
                 }
             }
